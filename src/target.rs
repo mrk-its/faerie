@@ -6,7 +6,8 @@ use target_lexicon::{Endianness, PointerWidth, Triple};
 
 pub fn make_ctx(target: &Triple) -> Ctx {
     let container_size = match target.pointer_width() {
-        Err(()) | Ok(PointerWidth::U16) => return Ctx::default(),
+        Err(()) => return Ctx::default(),
+        Ok(PointerWidth::U16) => container::Container::Little,
         Ok(PointerWidth::U32) => container::Container::Little,
         Ok(PointerWidth::U64) => container::Container::Big,
     };

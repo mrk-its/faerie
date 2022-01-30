@@ -47,6 +47,7 @@ impl From<Architecture> for MachineTag {
             X86_32(_) => EM_386,
             Aarch64(_) => EM_AARCH64,
             Arm(_) => EM_ARM,
+            MOS => EM_MOS,
             Mips32(_) | Mips64(_) => EM_MIPS,
             Powerpc => EM_PPC,
             Powerpc64 | Powerpc64le => EM_PPC64,
@@ -583,7 +584,7 @@ impl<'a> Elf<'a> {
                     );
 
                     // TODO: per-symbol type?
-                    let symbol = SymbolBuilder::new(SymbolType::None)
+                    let symbol = SymbolBuilder::new(SymbolType::Decl(&DefinedDecl::Function(Decl::function().global())))
                         .name_offset(offset)
                         .section_index(shndx)
                         .value(*symbol_dst_offset)
@@ -1046,7 +1047,6 @@ pub fn to_bytes(artifact: &Artifact) -> goblin::error::Result<Vec<u8>> {
     // this means that a call to new has a fully constructed object ready to marshal into bytes, similar to the mach backend
     let mut elf = Elf::new(&artifact);
     for def in artifact.definitions() {
-        debug!("Def: {:?}", def);
         elf.add_definition(def);
     }
     for (ref import, ref kind) in artifact.imports() {
